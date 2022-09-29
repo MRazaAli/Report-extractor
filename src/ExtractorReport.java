@@ -1,0 +1,43 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+abstract public class ExtractorReport {
+
+    public abstract Pattern getPattern();
+
+    public abstract String getReportName();
+
+    public abstract String clean(String input);
+
+    private String parse(String path) throws FileNotFoundException {
+        String out = "";
+        File file = new File(path);
+        Scanner scan = new Scanner(file);
+        // check if file has a text.
+        if (scan.hasNext()){
+            scan.nextLine();
+        }else return "Empty file.";
+
+        while (scan.hasNext()){
+            String nextLine = scan.nextLine().trim();
+            // match according ot pur pattern - regex
+            Matcher matcher = getPattern().matcher(nextLine);
+
+            boolean matches = matcher.matches();
+            if (matches){
+                out += clean(nextLine) + "\n";
+            }
+        }
+        return out.isBlank() ? "Empty file." : out;
+    }
+
+    public void prepareAndSendReport(String path) throws FileNotFoundException{
+        System.out.println("Starting report: " + getReportName() + "...");
+        String report = parse(path);
+        System.out.println(report);
+        System.out.println("Sent report: " + getReportName());
+    }
+}
